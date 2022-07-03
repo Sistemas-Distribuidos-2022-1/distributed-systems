@@ -1,0 +1,28 @@
+syntax = "proto3";
+
+option go_package = "prdcon/pb/message";
+
+package message;
+
+service TaskManager {
+    rpc RegisterTask(RegisterTaskRequest) returns (RegisterTaskReply) {}
+    rpc GetTask(GetTaskRequest) returns (GetTaskReply) {}
+}
+
+message RegisterTaskRequest {
+    string id = 1;
+    string task_name = 2;
+}
+
+message RegisterTaskReply {
+    string status = 1;
+}
+
+message GetTaskRequest {
+    string id = 1;
+}
+
+message GetTaskReply {
+    int32 status = 1;
+    string task_name = 2;
+}

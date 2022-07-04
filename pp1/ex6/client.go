@@ -1,8 +1,5 @@
 /*
- * Title: Salary Readjustment Client
- * Description: This client collects the name, role and actual salary
- *              of an employee, then sends to the server that apply a
- *              readjustment.
+ * Title: Client Ex. 6
  * Author: William T. P. Junior
  * Made with GO 1.18
  * Use: go run client.go
@@ -25,9 +22,9 @@ const (
 )
 
 func main() {
-	fmt.Print("-------------------- Employee Salary Readjustment --------------------\n")
-	fmt.Print("Element format: NAME ROLE SALARY\n")
-	fmt.Print("Multiple data input: NAME1 ROLE1 SALARY1 NAME2 ROLE2 SALARY2 ...\n")
+	fmt.Print("-------------------- Net Salary Calculator --------------------\n")
+	fmt.Print("Element format: NAME LEVEL SALARY NUM_DEPS\n")
+	fmt.Print("Multiple data input: NAME1 LEVEL1 SALARY1 NUM_DEPS1 NAME2 LEVEL2 SALARY2 NUM_DEPS2 ...\n")
 	fmt.Print("type 'exit' to close\n")
 	reader := bufio.NewReader(os.Stdin)
 	for {
@@ -43,25 +40,28 @@ func main() {
 
 		// Check that the input string has the correct format
 		data := strings.Split(input, " ")
-		if len(data)%3 != 0 {
+		if len(data)%4 != 0 {
 			panic("Invalid input!")
 		}
 
 		// Counts the number o employees present in the input data.
-		numEmployees := len(data) / 3
+		numEmployees := len(data) / 4
 		for i := 0; i < numEmployees; i++ {
-			// Checks if salary value is valid.
-			if _, err := strconv.ParseFloat(data[(i*3)+2], 64); err != nil {
-				panic("Invalid input!")
-			}
-
 			// Passes to the processing function
-			readjust(data[(i*3)], data[(i*3)+1], data[(i*3)+2])
+			calcule_net_salary(data[(i*3)], data[(i*3)+1], data[(i*3)+2], data[(i*3)+3])
 		}
 	}
 }
 
-func readjust(name, role, salary string) {
+func calcule_net_salary(name, level, salary, num_deps string) {
+	// Checks if input value is valid.
+	if _, err := strconv.ParseFloat(salary, 64); err != nil {
+		panic("Invalid SALARY input!")
+	}
+	if _, err := strconv.ParseInt(num_deps, 10, 64); err != nil {
+		panic("Invalid NUM_DEPS input!")
+	}
+
 	// Connect with the server
 	conn, err := net.Dial(SERVER_TYPE, SERVER_HOST+":"+SERVER_PORT)
 	if err != nil {
@@ -69,21 +69,20 @@ func readjust(name, role, salary string) {
 	}
 	defer conn.Close()
 
-	// Send request for readjustment
-	_, err = conn.Write([]byte(fmt.Sprintf("RAJ %s %s %s", name, role, salary)))
+	// Send request for net salary
+	_, err = conn.Write([]byte(fmt.Sprintf("CNS %s %s %s", strings.ToUpper(level), salary, num_deps)))
 	if err != nil {
 		panic("Failed to write to socket!")
 	}
 
 	// Receive results
-	buffer := make([]byte, 8)
+	buffer := make([]byte, 64)
 	mLen, err := conn.Read(buffer)
 	if err != nil {
 		panic("Failed to read from socket!")
 	}
 
 	// Present results
-	oldSal, _ := strconv.ParseFloat(salary, 64)
-	newSal, _ := strconv.ParseFloat(string(buffer[:mLen]), 64)
-	fmt.Printf("NAME: %s | ROLE: %s | SALARY: %.2f -> %.2f\n", name, role, oldSal, newSal)
+	net_salary, _ := strconv.ParseFloat(string(buffer[:mLen]), 64)
+	fmt.Printf("NAME: %s | LEVEL: %s | NET SALARY: %.2f\n", name, level, net_salary)
 }

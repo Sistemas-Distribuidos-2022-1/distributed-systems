@@ -32,6 +32,7 @@ func main() {
 		fmt.Print("> ")
 		input, _ := reader.ReadString('\n')
 		input = strings.Replace(input, "\n", "", -1)
+		input = strings.Replace(input, "\r", "", -1)
 
 		if strings.Compare(input, "exit") == 0 {
 			break

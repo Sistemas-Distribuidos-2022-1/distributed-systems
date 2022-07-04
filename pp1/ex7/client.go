@@ -1,5 +1,5 @@
 /*
- * Title: Client
+ * Title: Client Ex. 7
  * Author: William T. P. Junior
  * Made with GO 1.18
  * Use: go run client.go
@@ -22,8 +22,8 @@ const (
 )
 
 func main() {
-	fmt.Print("-------------------- Grade Check --------------------\n")
-	fmt.Print("Element format: N1 N2 N3\n")
+	fmt.Print("-------------------- Retirement Availability Calculator --------------------\n")
+	fmt.Print("Element format: AGE SERVICE_TIME\n")
 	fmt.Print("Multiple data input: NOT SUPPORTED!\n")
 	fmt.Print("type 'exit' to close\n")
 	reader := bufio.NewReader(os.Stdin)
@@ -40,26 +40,22 @@ func main() {
 
 		// Check that the input string has the correct format
 		data := strings.Split(input, " ")
-		if len(data) != 3 {
+		if len(data) != 2 {
 			panic("Invalid input!")
 		}
 
 		// Passes to the processing function
-		approvalCheck(data[0], data[1], data[2])
-
+		retirement_check(data[0], data[1])
 	}
 }
 
-func approvalCheck(n1, n2, n3 string) {
-	// Checks if grade values are valid.
-	if _, err := strconv.ParseFloat(n1, 64); err != nil {
-		panic("Invalid N1 input!")
+func retirement_check(age, service string) {
+	// Checks if input value is valid.
+	if _, err := strconv.ParseInt(age, 10, 64); err != nil {
+		panic("Invalid AGE input!")
 	}
-	if _, err := strconv.ParseFloat(n2, 64); err != nil {
-		panic("Invalid N2 input!")
-	}
-	if _, err := strconv.ParseFloat(n3, 64); err != nil {
-		panic("Invalid N3 input!" + err.Error())
+	if _, err := strconv.ParseInt(service, 10, 64); err != nil {
+		panic("Invalid SERVICE_TIME input!")
 	}
 
 	// Connect with the server
@@ -69,8 +65,8 @@ func approvalCheck(n1, n2, n3 string) {
 	}
 	defer conn.Close()
 
-	// Send request for approval check
-	_, err = conn.Write([]byte(fmt.Sprintf("APC %s %s %s", n1, n2, n3)))
+	// Send request for net salary
+	_, err = conn.Write([]byte(fmt.Sprintf("RAC %s %s", age, service)))
 	if err != nil {
 		panic("Failed to write to socket!")
 	}
@@ -84,10 +80,10 @@ func approvalCheck(n1, n2, n3 string) {
 
 	// Present results
 	if strings.Compare(string(buffer[:mLen]), "TRUE") == 0 {
-		fmt.Printf("Approved!\n")
+		fmt.Printf("Available!\n")
 	} else if strings.Compare(string(buffer[:mLen]), "FALSE") == 0 {
-		fmt.Printf("Reproved!\n")
+		fmt.Printf("Unavailable!\n")
 	} else {
-		fmt.Printf("It was not possible to check approval for grades {%s, %s, %s}\n", n1, n2, n3)
+		fmt.Printf("It was not possible to check retirement availability for {%s, %s}\n", age, service)
 	}
 }

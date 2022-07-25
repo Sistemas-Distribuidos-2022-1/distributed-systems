@@ -1,0 +1,32 @@
+syntax = "proto3";
+
+option go_package = "producer_consumer/pb/message";
+
+package message;
+
+service Manager {
+    rpc RegisterTask(RegisterTaskRequest) returns (RegisterTaskReply) {}
+    rpc GetTask(GetTaskRequest) returns (GetTaskReply) {}
+}
+
+message RegisterTaskRequest {
+    string task_id = 1;
+    string task_name = 2;
+    string producer_id = 3;
+}
+
+message RegisterTaskReply {
+    string task_id = 1;
+    bool success = 2;
+}
+
+message GetTaskRequest {
+    string consumer_id = 1;
+}
+
+message GetTaskReply {
+    string task_id = 1;
+    string task_name = 2;
+    bool success = 3;
+}
+

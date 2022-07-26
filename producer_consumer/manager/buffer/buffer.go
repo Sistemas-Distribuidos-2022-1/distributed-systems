@@ -65,3 +65,7 @@ func (b *Buffer) Pop() (Task, error) {
 func (b *Buffer) ListTasks() []Task {
 	return b.tasks
 }
+
+func (b *Buffer) SetLimit(limit int) {
+	b.limit = limit
+}

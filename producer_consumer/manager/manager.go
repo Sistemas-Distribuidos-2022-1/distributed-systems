@@ -9,6 +9,7 @@ package main
 
 import (
 	"context"
+	"flag"
 	"fmt"
 	"log"
 	"net"
@@ -21,7 +22,10 @@ import (
 	"google.golang.org/grpc"
 )
 
-var port = 5011
+var (
+	port        = flag.String("port", "5011", "The port to listen on.")
+	buffer_size = flag.Int("buffer", 10, "Size of the buffer")
+)
 
 type server struct {
 	pb.UnimplementedManagerServer
@@ -61,15 +65,13 @@ func (s *server) print_task_list(delay time.Duration) {
 	writer.Start()
 	defer writer.Stop()
 
-	for true {
+	for {
 		text := "------ PENDING TASK LIST ------\n"
 
 		// Get the task list
 		task_list := s.buffer.ListTasks()
-		if task_list != nil {
-			for i := range task_list {
-				text += ("* " + task_list[i].Id + " - " + task_list[i].Name + "\n")
-			}
+		for i := range task_list {
+			text += ("* " + task_list[i].Id + " - " + task_list[i].Name + "\n")
 		}
 
 		text += "-------------------------------"
@@ -83,7 +85,9 @@ func (s *server) print_task_list(delay time.Duration) {
 }
 
 func main() {
-	lis, err := net.Listen("tcp", fmt.Sprintf(":%d", port))
+	flag.Parse()
+
+	lis, err := net.Listen("tcp", fmt.Sprintf(":%s", *port))
 	if err != nil {
 		log.Fatalf("failed to listen: %v", err)
 	}
@@ -91,6 +95,7 @@ func main() {
 
 	svc := grpc.NewServer()
 	svr := &server{}
+	svr.buffer.SetLimit(*buffer_size)
 	pb.RegisterManagerServer(svc, svr)
 
 	log.Printf("Started server on port %d", port)

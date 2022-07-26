@@ -5,3 +5,4 @@
 - [prdcon](prdcon) - Producer/Consumer architecture using docker
 - [pp1](pp1) - Programming Problems 1 (04/07/2022)
 - [pp2](pp2) - Programming Problems 1 (07/07/2022)
+- [producer_consumer](producer_consumer) - Producer/Consumer with bounded buffer and concurrency using Mutex.
